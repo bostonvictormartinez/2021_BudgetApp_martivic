@@ -87,7 +87,7 @@ var budgetController=(function(){
                 budget:data.budget,
                 totalInc:data.totals.inc,
                 totalExp:data.totals.inc,
-                totalsPercentage:data.percentage
+                totalPercentage:data.percentage
             };
             
         },
@@ -113,8 +113,8 @@ var UIController=(function () {
         budgetLabel:'.budget__value',
         incomeLabel:'.budget__income--value',
         expensesLabel:'.budget__expenses--value',
-        percentageLabel:'.budget__expenses--percentage'
-
+        percentageLabel:'.budget__expenses--percentage',
+        container:'.container'
     }
 
     return{
@@ -168,24 +168,55 @@ var UIController=(function () {
             document.querySelector(DOMstrings.budgetLabel).textContent=obj.budget;
             document.querySelector(DOMstrings.incomeLabel).textContent=obj.totalInc ;
             document.querySelector(DOMstrings.expensesLabel).textContent=obj.totalExp;
-            document.querySelector(DOMstrings.percentageLabel).textContent=obj.totalPercentage;
-           
+
+            if(obj.totalPercentage>0){
+                document.querySelector(DOMstrings.percentageLabel).textContent=obj.totalPercentage + "%";              
+            }else{
+                document.querySelector(DOMstrings.percentageLabel).textContent= " ";
+
+
+            }
+            
+        },
+        getDOMstrings:function() {
+            return DOMstrings;
             
         }
     }
 
 })();
+var controller=(function(budgetCtrl, UICtrl){
 
-var controller=(function(budgetCtrl,UICtrl){
-    
-   var updateBudget=function () {
+    var setupEventListener=function () {
+
+        var DOM=UICtrl.getDOMstrings();
+
+        document.querySelector(DOM.inputBtn).addEventListener('click', ctrlAddItem);
+        document.addEventListener('keypress',function (event) {
+            console.log(event);
+            if(event==='Enter'){
+                console.log('enter clicked');
+                ctrlAddItem();
+            }
+            
+        });
+
+        document.querySelector(DOM.container).addEventListener('click', ctrlDeleteItem);
+       // console.log(UICtrl.DOMstrings)
+
+       //SETUP DOM=UICtrl.Domstnakg;ag
+    };
+
+    var updateBudget=function () {
         var budget;
         
         budgetCtrl.calculateBudget()
         budget=budgetCtrl.getBudget()
         console.log(budget)
         UICtrl.displayBudget(budget)
-    }
+    };
+
+  
 
     var ctrlAddItem=function () {
         //console.log('ctrl add works');
@@ -198,21 +229,45 @@ var controller=(function(budgetCtrl,UICtrl){
         UICtrl.addListItem(newItem, input.type);
         UICtrl.clearfields()
         updateBudget()
-            
+
+
         }
+
+       
+
+    };
+
+    var ctrlDeleteItem=function (event) {
+        console.log(event.target)
+        console.log(event.target.parentNode)
+        
+        console.log(event.target.parentNode.parentNode.parentNode.parentNode.id)
+
+
     }
 
-    document.querySelector('.add__btn').addEventListener('click',ctrlAddItem)
-       // console.log('clicked');
-        document.addEventListener('keypress',function (event) {
-            if(event.key==='Enter'){
-                console.log('Enter');
-                ctrlAddItem();
-            }
-        })
+    return{
+        init:function () {
+            console.log('app started');
+            UICtrl.displayBudget({
+                budget:0,
+                totalInc:0,
+                totalExp:0,
+                percentage:-1
+            });
+            setupEventListener();
+            
+        }
+    };
+
+      
+
     
 
-})(budgetController, UIController);
+})(budgetController, UIController)
+
+
+controller.init()
 
 
 
